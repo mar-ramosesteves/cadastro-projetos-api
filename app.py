@@ -4,7 +4,7 @@ from datetime import datetime
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})  # libera para qualquer origem
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 @app.route("/criar-pastas", methods=["POST"])
 def criar_pastas():
@@ -21,11 +21,9 @@ def criar_pastas():
         if not empresa or not periodo_de or not periodo_ate or not data_limite:
             return jsonify({"erro": "Campos obrigatórios ausentes."}), 400
 
-        # Nome da pasta com base no primeiro dia do período
         data_inicio = datetime.strptime(periodo_de, "%Y-%m-%d")
         pasta_periodo = data_inicio.strftime("%m-%Y")
 
-        # Caminho base (ajustar esse caminho conforme o ambiente de deploy real)
         base_dir = "dados_projetos"
         pasta_empresa = os.path.join(base_dir, empresa.replace(" ", "_"))
         pasta_periodo_completa = os.path.join(pasta_empresa, pasta_periodo)
@@ -37,8 +35,7 @@ def criar_pastas():
             os.makedirs(pasta_lider, exist_ok=True)
 
             with open(os.path.join(pasta_lider, "autoavaliacao.csv"), "w") as f:
-                f.write("Aguardando envio da autoavaliação...\n")
-
+                f.write("Aguardando envio da autoavaliacao...\n")
             with open(os.path.join(pasta_lider, "equipe.csv"), "w") as f:
                 f.write("Aguardando respostas da equipe...\n")
 
