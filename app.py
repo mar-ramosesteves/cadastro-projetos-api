@@ -122,3 +122,7 @@ print("🚨 ENTROU NA FUNÇÃO /criar-pastas 🚨")
 @app.route("/")
 def home():
     return "API de criação de pastas ativa!"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
+
