@@ -54,72 +54,15 @@ def compartilhar_pasta_com_email(pasta_id, email):
     except Exception as e:
         print(f"❌ Erro ao compartilhar pasta: {e}", flush=True)
 
-@app.route("/criar-pastas", methods=["POST"])
+@@app.route("/criar-pastas", methods=["POST"])
 def criar_pastas():
-
-print("🚨 ENTROU NA FUNÇÃO /criar-pastas 🚨", flush=True)
-
-
+    print("🚨 ENTROU NA FUNÇÃO /criar-pastas 🚨", flush=True)
     try:
-        ...
-
-    try:
-        dados = request.get_json()
-        empresa = dados.get("empresa")
-        periodo_de = dados.get("periodo_de")
-        periodo_ate = dados.get("periodo_ate")
-        data_limite = dados.get("data_limite")
-        nomes_lideres = dados.get("nome_lider", [])
-        emails_lideres = dados.get("email_lider", [])
-
-        if not empresa or not periodo_de or not periodo_ate or not data_limite:
-            return jsonify({"erro": "Campos obrigatórios ausentes."}), 400
-
-        data_inicio = datetime.strptime(periodo_de, "%Y-%m-%d")
-        pasta_periodo = data_inicio.strftime("%m-%Y")
-
-        base_dir = "dados_projetos"
-        pasta_empresa = os.path.join(base_dir, empresa.replace(" ", "_"))
-        pasta_periodo_completa = os.path.join(pasta_empresa, pasta_periodo)
-        os.makedirs(pasta_periodo_completa, exist_ok=True)
-
-        for nome, email in zip(nomes_lideres, emails_lideres):
-            pasta_local = os.path.join(pasta_periodo_completa, email)
-            os.makedirs(pasta_local, exist_ok=True)
-
-            auto_path = os.path.join(pasta_local, "autoavaliacao.csv")
-            equipe_path = os.path.join(pasta_local, "equipe.csv")
-
-            with open(auto_path, "w") as f:
-                f.write("Aguardando envio da autoavaliacao...\n")
-            with open(equipe_path, "w") as f:
-                f.write("Aguardando respostas da equipe...\n")
-
-            # 📁 Criar pasta no Drive
-            nome_pasta_drive = f"{empresa}_{pasta_periodo}_{email}"
-            folder_metadata = {
-                'name': nome_pasta_drive,
-                'mimeType': 'application/vnd.google-apps.folder'
-            }
-            folder = drive_service.files().create(
-                body=folder_metadata, fields='id'
-            ).execute()
-            pasta_id = folder.get('id')
-
-            # 👥 Compartilhar com seu e-mail
-            compartilhar_pasta_com_email(pasta_id, "mar.ramosesteves@gmail.com")
-
-print(f"❌ Erro ao compartilhar pasta: {e}", flush=True)
-
-            # ⬆️ Upload dos arquivos
-            upload_para_drive(auto_path, "autoavaliacao.csv", pasta_id)
-            upload_para_drive(equipe_path, "equipe.csv", pasta_id)
-
-        return jsonify({"mensagem": "Pastas criadas com sucesso e arquivos enviados ao Google Drive."})
-
+        return jsonify({"mensagem": "FUNÇÃO FOI EXECUTADA!"})
     except Exception as e:
-        print("❌ Erro ao criar pastas:", str(e))
+        print("❌ Erro ao criar pastas:", str(e), flush=True)
         return jsonify({"erro": str(e)}), 500
+
 
 @app.route("/")
 def home():
