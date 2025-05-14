@@ -36,6 +36,24 @@ def upload_para_drive(caminho_local, nome_destino_drive, pasta_id=None):
     except Exception as e:
         print(f"❌ Erro no upload {nome_destino_drive}: {e}")
 
+# 📤 Compartilhar pasta com seu e-mail pessoal
+def compartilhar_pasta_com_email(pasta_id, email):
+    try:
+        permission = {
+            'type': 'user',
+            'role': 'writer',
+            'emailAddress': email
+        }
+        drive_service.permissions().create(
+            fileId=pasta_id,
+            body=permission,
+            fields='id',
+            sendNotificationEmail=False
+        ).execute()
+        print(f"👥 Pasta compartilhada com: {email}")
+    except Exception as e:
+        print(f"❌ Erro ao compartilhar pasta: {e}")
+
 # 🚀 Rota principal
 @app.route("/criar-pastas", methods=["POST"])
 def criar_pastas():
@@ -71,7 +89,7 @@ def criar_pastas():
             with open(equipe_path, "w") as f:
                 f.write("Aguardando respostas da equipe...\n")
 
-            # 📁 Criar pasta no Drive para o líder
+            # 📁 Criar pasta no Drive
             nome_pasta_drive = f"{empresa}_{pasta_periodo}_{email}"
             folder_metadata = {
                 'name': nome_pasta_drive,
@@ -82,7 +100,10 @@ def criar_pastas():
             ).execute()
             pasta_id = folder.get('id')
 
-            # ⬆️ Enviar arquivos para dentro da pasta no Drive
+            # 👥 Compartilhar com seu Gmail
+            compartilhar_pasta_com_email(pasta_id, "mar.ramosesteves@gmail.com")
+
+            # ⬆️ Enviar arquivos
             upload_para_drive(auto_path, "autoavaliacao.csv", pasta_id)
             upload_para_drive(equipe_path, "equipe.csv", pasta_id)
 
