@@ -30,6 +30,14 @@ def criar_pastas():
 
         os.makedirs(pasta_periodo_completa, exist_ok=True)
 
+print(f"🚨 Nomes: {nomes_lideres}")
+print(f"🚨 E-mails: {emails_lideres}")
+
+for nome, email in zip(nomes_lideres, emails_lideres):
+    ...
+
+
+
         for nome, email in zip(nomes_lideres, emails_lideres):
             pasta_lider = os.path.join(pasta_periodo_completa, email)
             os.makedirs(pasta_lider, exist_ok=True)
