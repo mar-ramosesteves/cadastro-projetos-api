@@ -58,10 +58,20 @@ app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Carregar credenciais da conta de serviço
-SERVICE_ACCOUNT_FILE = os.path.join("credenciais", "chave_google.json")
+import json
+
 SCOPES = ['https://www.googleapis.com/auth/drive']
+
+# Carregar credencial da variável de ambiente e salvar temporariamente
+credencial_texto = os.environ.get("GOOGLE_DRIVE_CREDENTIALS")
+caminho_temp = os.path.join("credenciais", "temp_chave.json")
+os.makedirs("credenciais", exist_ok=True)
+
+with open(caminho_temp, "w") as f:
+    f.write(credencial_texto)
+
 creds = service_account.Credentials.from_service_account_file(
-    SERVICE_ACCOUNT_FILE, scopes=SCOPES
+    caminho_temp, scopes=SCOPES
 )
 drive_service = build('drive', 'v3', credentials=creds)
 
