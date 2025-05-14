@@ -36,6 +36,7 @@ def criar_pastas():
 
             with open(os.path.join(pasta_lider, "autoavaliacao.csv"), "w") as f:
                 f.write("Aguardando envio da autoavaliacao...\n")
+
             with open(os.path.join(pasta_lider, "equipe.csv"), "w") as f:
                 f.write("Aguardando respostas da equipe...\n")
 
@@ -44,6 +45,20 @@ def criar_pastas():
     except Exception as e:
         print("Erro ao criar pastas:", str(e))
         return jsonify({"erro": str(e)}), 500
+
+@app.route("/listar-pastas", methods=["GET"])
+def listar_pastas():
+    estrutura = []
+    base_dir = "dados_projetos"
+
+    for root, dirs, files in os.walk(base_dir):
+        nivel = root.replace(base_dir, "").lstrip(os.sep)
+        estrutura.append({
+            "caminho": nivel if nivel else base_dir,
+            "arquivos": files
+        })
+
+    return jsonify(estrutura)
 
 @app.route("/")
 def home():
