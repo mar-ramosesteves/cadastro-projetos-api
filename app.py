@@ -57,7 +57,7 @@ def compartilhar_pasta_com_email(pasta_id, email):
 @app.route("/criar-pastas", methods=["POST"])
 def criar_pastas():
 
-print("🚨 ENTROU NA FUNÇÃO /criar-pastas 🚨")
+print("🚨 ENTROU NA FUNÇÃO /criar-pastas 🚨", flush=True)
 
 
     try:
