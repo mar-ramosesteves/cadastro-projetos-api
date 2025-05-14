@@ -154,7 +154,7 @@ def listar_pastas():
 
 @app.route("/")
 def home():
-    return "API de criação de pastas ativa!"
+    return "API de criações de pastas ativa!"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
