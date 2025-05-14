@@ -7,7 +7,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, supports_credentials=True)
 
 # 🔐 Carregar credenciais da variável de ambiente
 SCOPES = ['https://www.googleapis.com/auth/drive']
