@@ -32,9 +32,9 @@ def upload_para_drive(caminho_local, nome_destino_drive, pasta_id=None):
         file = drive_service.files().create(
             body=file_metadata, media_body=media, fields='id'
         ).execute()
-        print(f"✅ Enviado: {nome_destino_drive} (ID: {file.get('id')})")
+        print(f"✅ Enviado: {nome_destino_drive} (ID: {file.get('id')})", flush=True)
     except Exception as e:
-        print(f"❌ Erro no upload {nome_destino_drive}: {e}")
+        print(f"❌ Erro no upload {nome_destino_drive}: {e}", flush=True)
 
 # 👥 Compartilhar pasta com e-mail
 def compartilhar_pasta_com_email(pasta_id, email):
@@ -52,7 +52,7 @@ def compartilhar_pasta_com_email(pasta_id, email):
         ).execute()
         print(f"👥 Pasta compartilhada com: {email}")
     except Exception as e:
-        print(f"❌ Erro ao compartilhar pasta: {e}")
+        print(f"❌ Erro ao compartilhar pasta: {e}", flush=True)
 
 @app.route("/criar-pastas", methods=["POST"])
 def criar_pastas():
@@ -108,6 +108,8 @@ print("🚨 ENTROU NA FUNÇÃO /criar-pastas 🚨", flush=True)
 
             # 👥 Compartilhar com seu e-mail
             compartilhar_pasta_com_email(pasta_id, "mar.ramosesteves@gmail.com")
+
+print(f"❌ Erro ao compartilhar pasta: {e}", flush=True)
 
             # ⬆️ Upload dos arquivos
             upload_para_drive(auto_path, "autoavaliacao.csv", pasta_id)
