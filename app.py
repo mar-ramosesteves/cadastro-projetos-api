@@ -2,60 +2,6 @@ from flask import Flask, request, jsonify
 import os
 from datetime import datetime
 from flask_cors import CORS
-
-app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
-
-@app.route("/criar-pastas", methods=["POST"])
-def criar_pastas():
-    try:
-        dados = request.get_json()
-
-        empresa = dados.get("empresa")
-        periodo_de = dados.get("periodo_de")
-        periodo_ate = dados.get("periodo_ate")
-        data_limite = dados.get("data_limite")
-        nome_raw = dados.get("nome_lider", [])
-email_raw = dados.get("email_lider", [])
-
-nomes_lideres = nome_raw if isinstance(nome_raw, list) else [nome_raw]
-emails_lideres = email_raw if isinstance(email_raw, list) else [email_raw]
-
-print(f"🚨 Nomes: {nomes_lideres}")
-print(f"🚨 E-mails: {emails_lideres}")
-
-for nome, email in zip(nomes_lideres, emails_lideres):
-    ...
-
-
-
-        for nome, email in zip(nomes_lideres, emails_lideres):
-            pasta_lider = os.path.join(pasta_periodo_completa, email)
-            os.makedirs(pasta_lider, exist_ok=True)
-
-            auto_path = os.path.join(pasta_lider, "autoavaliacao.csv")
-            equipe_path = os.path.join(pasta_lider, "equipe.csv")
-
-            with open(auto_path, "w") as f:
-                f.write("Aguardando envio da autoavaliacao...\n")
-
-            with open(equipe_path, "w") as f:
-                f.write("Aguardando respostas da equipe...\n")
-
-            # ✅ Aqui está o upload com log
-            upload_para_drive(auto_path, f"{empresa}_{pasta_periodo}_{email}_auto.csv")
-            upload_para_drive(equipe_path, f"{empresa}_{pasta_periodo}_{email}_equipe.csv")
-
-        return jsonify({"mensagem": "Pastas criadas com sucesso e arquivos enviados ao Google Drive."})
-
-    except Exception as e:
-        print("❌ Erro ao criar pastas:", str(e))
-        return jsonify({"erro": str(e)}), 500
-
-from flask import Flask, request, jsonify
-import os
-from datetime import datetime
-from flask_cors import CORS
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
@@ -63,16 +9,11 @@ from googleapiclient.http import MediaFileUpload
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-# Carregar credenciais da conta de serviço
-import json
-
+# 🔐 Carregar credencial da variável de ambiente
 SCOPES = ['https://www.googleapis.com/auth/drive']
-
-# Carregar credencial da variável de ambiente e salvar temporariamente
 credencial_texto = os.environ.get("GOOGLE_DRIVE_CREDENTIALS")
-caminho_temp = os.path.join("credenciais", "temp_chave.json")
 os.makedirs("credenciais", exist_ok=True)
-
+caminho_temp = os.path.join("credenciais", "temp_chave.json")
 with open(caminho_temp, "w") as f:
     f.write(credencial_texto)
 
@@ -81,22 +22,25 @@ creds = service_account.Credentials.from_service_account_file(
 )
 drive_service = build('drive', 'v3', credentials=creds)
 
-# Função auxiliar para upload
-def upload_para_drive(caminho_local, nome_destino_drive):
+# 📁 Função para upload com pasta destino
+def upload_para_drive(caminho_local, nome_destino_drive, pasta_id=None):
     try:
-        print(f"🔁 Enviando para o Drive: {nome_destino_drive}")
         file_metadata = {'name': nome_destino_drive}
+        if pasta_id:
+            file_metadata['parents'] = [pasta_id]
         media = MediaFileUpload(caminho_local, resumable=True)
-        file = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-        print(f"✅ Arquivo enviado para o Drive: {nome_destino_drive} (ID: {file.get('id')})")
+        file = drive_service.files().create(
+            body=file_metadata, media_body=media, fields='id'
+        ).execute()
+        print(f"✅ Enviado: {nome_destino_drive} (ID: {file.get('id')})")
     except Exception as e:
-        print(f"❌ Erro ao enviar {nome_destino_drive}: {e}")
+        print(f"❌ Erro no upload {nome_destino_drive}: {e}")
 
+# 🚀 Rota principal
 @app.route("/criar-pastas", methods=["POST"])
 def criar_pastas():
     try:
         dados = request.get_json()
-
         empresa = dados.get("empresa")
         periodo_de = dados.get("periodo_de")
         periodo_ate = dados.get("periodo_ate")
@@ -113,43 +57,51 @@ def criar_pastas():
         base_dir = "dados_projetos"
         pasta_empresa = os.path.join(base_dir, empresa.replace(" ", "_"))
         pasta_periodo_completa = os.path.join(pasta_empresa, pasta_periodo)
-
         os.makedirs(pasta_periodo_completa, exist_ok=True)
 
         for nome, email in zip(nomes_lideres, emails_lideres):
-            pasta_lider = os.path.join(pasta_periodo_completa, email)
-            os.makedirs(pasta_lider, exist_ok=True)
+            pasta_local = os.path.join(pasta_periodo_completa, email)
+            os.makedirs(pasta_local, exist_ok=True)
 
-            auto_path = os.path.join(pasta_lider, "autoavaliacao.csv")
-            equipe_path = os.path.join(pasta_lider, "equipe.csv")
+            auto_path = os.path.join(pasta_local, "autoavaliacao.csv")
+            equipe_path = os.path.join(pasta_local, "equipe.csv")
 
             with open(auto_path, "w") as f:
                 f.write("Aguardando envio da autoavaliacao...\n")
-
             with open(equipe_path, "w") as f:
                 f.write("Aguardando respostas da equipe...\n")
 
-            upload_para_drive(auto_path, f"{empresa}_{pasta_periodo}_{email}_auto.csv")
-            upload_para_drive(equipe_path, f"{empresa}_{pasta_periodo}_{email}_equipe.csv")
+            # 📁 Criar pasta no Drive para o líder
+            nome_pasta_drive = f"{empresa}_{pasta_periodo}_{email}"
+            folder_metadata = {
+                'name': nome_pasta_drive,
+                'mimeType': 'application/vnd.google-apps.folder'
+            }
+            folder = drive_service.files().create(
+                body=folder_metadata, fields='id'
+            ).execute()
+            pasta_id = folder.get('id')
 
-        return jsonify({"mensagem": "Pastas criadas com sucesso e arquivos enviados ao Google Drive."})
+            # ⬆️ Enviar arquivos para dentro da pasta no Drive
+            upload_para_drive(auto_path, "autoavaliacao.csv", pasta_id)
+            upload_para_drive(equipe_path, "equipe.csv", pasta_id)
+
+        return jsonify({"mensagem": "Pastas criadas localmente e no Google Drive com sucesso."})
 
     except Exception as e:
-        print("Erro ao criar pastas:", str(e))
+        print("❌ Erro ao criar pastas:", str(e))
         return jsonify({"erro": str(e)}), 500
 
 @app.route("/listar-pastas", methods=["GET"])
 def listar_pastas():
     estrutura = []
     base_dir = "dados_projetos"
-
     for root, dirs, files in os.walk(base_dir):
         nivel = root.replace(base_dir, "").lstrip(os.sep)
         estrutura.append({
             "caminho": nivel if nivel else base_dir,
             "arquivos": files
         })
-
     return jsonify(estrutura)
 
 @app.route("/")
