@@ -15,20 +15,11 @@ def criar_pastas():
         periodo_de = dados.get("periodo_de")
         periodo_ate = dados.get("periodo_ate")
         data_limite = dados.get("data_limite")
-        nomes_lideres = dados.get("nome_lider", [])
-        emails_lideres = dados.get("email_lider", [])
+        nome_raw = dados.get("nome_lider", [])
+email_raw = dados.get("email_lider", [])
 
-        if not empresa or not periodo_de or not periodo_ate or not data_limite:
-            return jsonify({"erro": "Campos obrigatórios ausentes."}), 400
-
-        data_inicio = datetime.strptime(periodo_de, "%Y-%m-%d")
-        pasta_periodo = data_inicio.strftime("%m-%Y")
-
-        base_dir = "dados_projetos"
-        pasta_empresa = os.path.join(base_dir, empresa.replace(" ", "_"))
-        pasta_periodo_completa = os.path.join(pasta_empresa, pasta_periodo)
-
-        os.makedirs(pasta_periodo_completa, exist_ok=True)
+nomes_lideres = nome_raw if isinstance(nome_raw, list) else [nome_raw]
+emails_lideres = email_raw if isinstance(email_raw, list) else [email_raw]
 
 print(f"🚨 Nomes: {nomes_lideres}")
 print(f"🚨 E-mails: {emails_lideres}")
