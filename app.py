@@ -56,6 +56,13 @@ def compartilhar_pasta_com_email(pasta_id, email):
 
 @app.route("/criar-pastas", methods=["POST"])
 def criar_pastas():
+
+print("🚨 ENTROU NA FUNÇÃO /criar-pastas 🚨")
+
+
+    try:
+        ...
+
     try:
         dados = request.get_json()
         empresa = dados.get("empresa")
