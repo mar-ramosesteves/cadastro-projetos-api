@@ -34,16 +34,23 @@ def criar_pastas():
             pasta_lider = os.path.join(pasta_periodo_completa, email)
             os.makedirs(pasta_lider, exist_ok=True)
 
-            with open(os.path.join(pasta_lider, "autoavaliacao.csv"), "w") as f:
+            auto_path = os.path.join(pasta_lider, "autoavaliacao.csv")
+            equipe_path = os.path.join(pasta_lider, "equipe.csv")
+
+            with open(auto_path, "w") as f:
                 f.write("Aguardando envio da autoavaliacao...\n")
 
-            with open(os.path.join(pasta_lider, "equipe.csv"), "w") as f:
+            with open(equipe_path, "w") as f:
                 f.write("Aguardando respostas da equipe...\n")
 
-        return jsonify({"mensagem": "Pastas criadas com sucesso."})
+            # ✅ Aqui está o upload com log
+            upload_para_drive(auto_path, f"{empresa}_{pasta_periodo}_{email}_auto.csv")
+            upload_para_drive(equipe_path, f"{empresa}_{pasta_periodo}_{email}_equipe.csv")
+
+        return jsonify({"mensagem": "Pastas criadas com sucesso e arquivos enviados ao Google Drive."})
 
     except Exception as e:
-        print("Erro ao criar pastas:", str(e))
+        print("❌ Erro ao criar pastas:", str(e))
         return jsonify({"erro": str(e)}), 500
 
 from flask import Flask, request, jsonify
