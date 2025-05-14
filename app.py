@@ -9,7 +9,7 @@ from googleapiclient.http import MediaFileUpload
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-# 🔐 Carregar credencial da variável de ambiente
+# 🔐 Carregar credenciais da variável de ambiente
 SCOPES = ['https://www.googleapis.com/auth/drive']
 credencial_texto = os.environ.get("GOOGLE_DRIVE_CREDENTIALS")
 os.makedirs("credenciais", exist_ok=True)
@@ -36,7 +36,7 @@ def upload_para_drive(caminho_local, nome_destino_drive, pasta_id=None):
     except Exception as e:
         print(f"❌ Erro no upload {nome_destino_drive}: {e}")
 
-# 📤 Compartilhar pasta com seu e-mail pessoal
+# 👥 Compartilhar pasta com e-mail
 def compartilhar_pasta_com_email(pasta_id, email):
     try:
         permission = {
@@ -54,7 +54,6 @@ def compartilhar_pasta_com_email(pasta_id, email):
     except Exception as e:
         print(f"❌ Erro ao compartilhar pasta: {e}")
 
-# 🚀 Rota principal
 @app.route("/criar-pastas", methods=["POST"])
 def criar_pastas():
     try:
@@ -100,34 +99,19 @@ def criar_pastas():
             ).execute()
             pasta_id = folder.get('id')
 
-            # 👥 Compartilhar com seu Gmail
+            # 👥 Compartilhar com seu e-mail
             compartilhar_pasta_com_email(pasta_id, "mar.ramosesteves@gmail.com")
 
-            # ⬆️ Enviar arquivos
+            # ⬆️ Upload dos arquivos
             upload_para_drive(auto_path, "autoavaliacao.csv", pasta_id)
             upload_para_drive(equipe_path, "equipe.csv", pasta_id)
 
-        return jsonify({"mensagem": "Pastas criadas localmente e no Google Drive com sucesso."})
+        return jsonify({"mensagem": "Pastas criadas com sucesso e arquivos enviados ao Google Drive."})
 
     except Exception as e:
         print("❌ Erro ao criar pastas:", str(e))
         return jsonify({"erro": str(e)}), 500
 
-@app.route("/listar-pastas", methods=["GET"])
-def listar_pastas():
-    estrutura = []
-    base_dir = "dados_projetos"
-    for root, dirs, files in os.walk(base_dir):
-        nivel = root.replace(base_dir, "").lstrip(os.sep)
-        estrutura.append({
-            "caminho": nivel if nivel else base_dir,
-            "arquivos": files
-        })
-    return jsonify(estrutura)
-
 @app.route("/")
 def home():
     return "API de criação de pastas ativa!"
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
