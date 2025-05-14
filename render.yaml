@@ -3,5 +3,6 @@ services:
     name: cadastro-projetos-api
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: python app.py
+    startCommand: python3 app.py
+
     envVars: []
