@@ -4,4 +4,9 @@ services:
     runtime: python
     buildCommand: pip install -r requirements.txt
     startCommand: python3 app.py
+<<<<<<< HEAD
     envVars: []
+=======
+
+    envVars: []
+>>>>>>> d39f2611cb1c21729d83c26dca47238881bc9227
