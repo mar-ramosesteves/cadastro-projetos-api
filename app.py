@@ -77,10 +77,14 @@ drive_service = build('drive', 'v3', credentials=creds)
 
 # Função auxiliar para upload
 def upload_para_drive(caminho_local, nome_destino_drive):
-    file_metadata = {'name': nome_destino_drive}
-    media = MediaFileUpload(caminho_local, resumable=True)
-    file = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-    print(f"✅ Arquivo enviado para o Drive: {nome_destino_drive} (ID: {file.get('id')})")
+    try:
+        print(f"🔁 Enviando para o Drive: {nome_destino_drive}")
+        file_metadata = {'name': nome_destino_drive}
+        media = MediaFileUpload(caminho_local, resumable=True)
+        file = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+        print(f"✅ Arquivo enviado para o Drive: {nome_destino_drive} (ID: {file.get('id')})")
+    except Exception as e:
+        print(f"❌ Erro ao enviar {nome_destino_drive}: {e}")
 
 @app.route("/criar-pastas", methods=["POST"])
 def criar_pastas():
